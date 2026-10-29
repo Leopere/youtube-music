@@ -54,7 +54,7 @@ function fixture(overrides = {}) {
 const rejectsCode = (promise, code) =>
   assert.rejects(promise, (e) => e instanceof LuckyError && e.code === code);
 
-test('only playable Home tiles become unique seeds; menus, tracking and podcasts do not', () => {
+test('only playable library tiles become unique seeds; menus, tracking and podcasts do not', () => {
   const response = home(A, A, 'invalid');
   response.contents.other = { menuRenderer: { watchEndpoint: { videoId: B } } };
   response.contents.podcast = {
@@ -75,7 +75,7 @@ test('only playable Home tiles become unique seeds; menus, tracking and podcasts
   assert.deepEqual(recommendationSeeds(null), []);
 });
 
-test('supports Home overlay play endpoints', () => {
+test('supports library overlay play endpoints', () => {
   const response = {
     contents: {
       musicTwoRowItemRenderer: {
@@ -94,17 +94,17 @@ test('supports Home overlay play endpoints', () => {
   assert.deepEqual(recommendationSeeds(response), [B]);
 });
 
-test('one press checks personalized Home and a fresh radio before watch navigation', async () => {
+test('one press checks personalized library and a fresh radio before watch navigation', async () => {
   const f = fixture();
   assert.equal(await f.mix.start(), true);
   assert.deepEqual(f.requests, [
-    { path: '/browse', data: { browseId: 'FEmusic_home' } },
+    { path: '/browse', data: { browseId: 'FEmusic_liked_videos' } },
     { path: '/next', data: { videoId: A, playlistId: `RDAMVM${A}` } },
   ]);
   assert.deepEqual(f.navigations, [`/watch?v=${A}&list=RDAMVM${A}`]);
 });
 
-test('repeated presses vary starts even with identical random values and cached Home', async () => {
+test('repeated presses vary starts even with identical random values and cached library', async () => {
   const f = fixture();
   for (let i = 0; i < 4; i++) await f.mix.start();
   assert.deepEqual(
@@ -128,7 +128,7 @@ test('signed-out requests do not fetch or mutate the queue', async () => {
   assert.equal(f.navigations.length, 0);
 });
 
-test('empty Home and unavailable radio preserve the existing queue', async () => {
+test('empty library and unavailable radio preserve the existing queue', async () => {
   for (const response of [null, {}, { contents: [] }]) {
     const f = fixture({ request: async () => response });
     await rejectsCode(f.mix.start(), 'empty');
@@ -170,7 +170,7 @@ test('a double press starts only one request; stopping prevents late navigation'
   assert.equal(await f.mix.start(), false);
   f.mix.stop();
   resolve(home(A));
-  // Disabling before Home resolves prevents even the radio request.
+  // Disabling before library resolves prevents even the radio request.
   assert.equal(await first, false);
   assert.deepEqual(f.navigations, []);
 });
@@ -223,4 +223,17 @@ test('supports song title endpoints in responsive rows without choosing artist l
     },
   };
   assert.deepEqual(recommendationSeeds(response), [A]);
+});
+
+test('empty personal library does not fall back to Trending or Home', async () => {
+  const calls = [];
+  const f = fixture({
+    request: async (path, data) => {
+      calls.push(data.browseId);
+      return { contents: [] };
+    },
+  });
+  await rejectsCode(f.mix.start(), 'empty');
+  assert.deepEqual(calls, ['FEmusic_liked_videos']);
+  assert.equal(f.navigations.length, 0);
 });

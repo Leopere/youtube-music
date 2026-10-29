@@ -891,6 +891,7 @@ app.whenReady().then(async () => {
       if (!forceQuit) {
         event.preventDefault();
         mainWindow!.hide();
+        if (config.get('options.tray')) app.dock?.hide();
       }
     });
   }

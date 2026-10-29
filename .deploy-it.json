@@ -1,8 +1,12 @@
 {
   "version": 1,
   "after_ship": true,
-  "environment": "ci-artifacts-only",
-  "command": ["python3", "ci/request-check.py"],
-  "env": ["HOME"],
+  "environment": "local-macos",
+  "command": [
+    "./ci/request-check.py"
+  ],
+  "env": [
+    "HOME"
+  ],
   "timeout_seconds": 300
 }

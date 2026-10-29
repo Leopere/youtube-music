@@ -17,7 +17,7 @@ The installed `/Applications/YouTube Music.app` is version 3.11.0, bundle ID `co
 
 ## Delivery and current state
 
-The `feeling-lucky` plugin is implemented and enabled by default. The button appears in the navigation bar. Each press fetches the signed-in Home recommendations through the site's existing network manager, chooses a song, checks its `RDAMVM` radio response, and opens the native watch route. The current song and previous start are excluded. Up to five recent starts are avoided when other recommendations exist. This starts a new radio request rather than shuffling the current queue.
+The `feeling-lucky` plugin is implemented and enabled by default. The button appears in the navigation bar. Each press fetches the signed-in Songs library (`FEmusic_liked_videos`) through the site's existing network manager, chooses a saved song, checks its `RDAMVM` radio response, and opens the native watch route. General Home shelves, Trending, charts, and seasonal promotions are not seed sources. If the library has no eligible song, the app asks the user to save more songs instead of substituting generic recommendations. The current song and previous start are excluded. Up to five recent starts are avoided when other recommendations exist. This starts a new radio request rather than shuffling the current queue.
 
 The plugin handles signed-out users, missing recommendations, unavailable player APIs, network failures, and request timeouts. It does not clear the existing queue before requesting a mix. Concurrent presses are ignored while a request runs. Disabling the plugin prevents late navigation. No credentials or listening history are copied, logged, or stored by the plugin.
 
@@ -31,17 +31,28 @@ The upstream Actions workflow files remain for reference, but GitHub Actions is 
 
 Use Node 24.15.0 or a newer compatible Node release and pnpm 11.1.0. The default Node 24.2.0 fails the locked `node-gyp` engine requirement. `packageManager` pins pnpm to avoid the broken default shim observed on this Mac.
 
-- `pnpm test:lucky`: 12 selection/network/lifecycle tests and 2 button tests pass. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
+- `pnpm test:lucky`: 13 selection/network/lifecycle tests, 3 button tests, and 4 startup scheduler tests pass. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
 - `pnpm typecheck`: passes.
 - `pnpm lint`: no errors; existing warnings remain in other plugins.
 - `pnpm build`: passes. This is a local development build, not a release artifact.
 - Focused formatting checks pass. The whole-source formatter reported inherited failures in unrelated files; those are not represented as a passing full check.
-- `pnpm test:lucky:electron`: passes on this Mac after building. It verifies the separate profile, visible localized button, and signed-out feedback, then closes only its development instance.
-- Git delivery: native Stop hooks own the next commit and push. The `ci-artifacts-only` handoff submits and observes `check-youtube-music` after a push; it does not publish, install, or claim live acceptance. No new pushed feature revision has been verified in this work session.
-- Jenkins: job installed and pipeline configuration validated. A feature-revision run, artifact receipt, run duration, and request-to-result timing remain unverified. The first toolchain-image prewarm took about 3.5 minutes; warm jobs should reuse that image.
-- Release: no signed macOS release or installed-app update has been produced or activated. Release destination remains to be chosen. Imported Actions stay disabled/reference; cross-platform releases, signing, vulnerability scanning, and Winget publication have not been replaced and verified.
+- `pnpm test:lucky:electron`: passes on this Mac after building. It verifies the separate profile, visible localized button, signed-out feedback, and closing the window without destroying it, then closes only its development instance.
+- Git delivery: native Stop hooks own the next commit and push. The `local-macos` handoff submits and observes `deploy-youtube-music` after a push; Jenkins builds, archives, installs and checks the authorized local target. No new pushed feature revision has been verified in this work session.
+- Jenkins: the local deployment job is installed and its pipeline configuration validated; the scoped SSH callback was checked to reject an invalid contract before any activation. A feature-revision run, artifact receipt, run duration, and request-to-result timing remain unverified. The first toolchain-image prewarm took about 3.5 minutes; warm jobs should reuse that image.
+- Release: no signed macOS release or installed-app update has been produced or activated. The authorized local target is `/Applications/YouTube Music.app`; public distribution remains out of scope. Imported Actions stay disabled/reference; cross-platform releases, signing, vulnerability scanning, and Winget publication have not been replaced and verified.
 - Playback: signed-in personalized selection, native queue replacement, and advancing audio have not been verified against a real account. The passing navigation unit test checks the submitted watch URL; it does not prove audio playback.
 
-To finish playback acceptance, the owner must sign in manually in the separate development profile using `pnpm start`, then close that development instance. The primary agent can then run `pnpm test:lucky:playback`. That command launches this checkout, presses the real button twice, checks different starting songs, populated queues, and advancing playback, and closes its development instance. It does not use the installed app's profile or save account responses. The owner should also confirm audible playback and normal controls. If recommendations or playback fail, the primary agent owns diagnosing the failing API boundary and rerunning the affected checks.
+The authorized upgrade uses the installed profile directly. It does not require signing into the separate development profile first. Jenkins checks retained sign-in, automatic playback, two different manual Lucky starts and playback after hiding the window. The independent `pnpm test:lucky:playback` command remains available for an optionally signed-in development profile. The primary agent owns diagnosing a failed API or authentication boundary; the deployment controller restores the previous app/profile if live acceptance fails.
 
-TODO: after native shipping provides a pushed feature revision, the primary agent must observe `check-youtube-music` for that exact revision, validate its archived hashes/receipt, and record its duration. Until that run and the signed-in playback check succeed, acceptance remains open.
+TODO: after native shipping provides a pushed feature revision, the primary agent must observe `deploy-youtube-music` for that exact revision, validate its installed-app and archived artifact receipt, and record its duration. Until that run and the signed-in playback check succeed, acceptance remains open.
+
+
+## Launch and local upgrade request
+
+The owner authorized switching the installed app to this fork on 2026-10-29, reusing the existing sign-in, and asked for launch-to-music and close-to-menu-bar behavior. This supersedes the earlier bootstrap restriction against replacing the installed app. Profile contents must still remain private and out of Git, Jenkins artifacts, and logs.
+
+`playOnLaunch` defaults to true and can be turned off in the Feeling Lucky plugin settings. A bounded startup attempt waits for the authenticated player, then uses the same library-based mix action as the button. It does not trigger again when a hidden window is reopened or the plugin is re-enabled. Existing playback or the Disable Autoplay plugin suppresses automatic startup.
+
+New profiles enable the tray/menu-bar icon and disable restoring an old queue and upstream automatic updates. The authorized local migration sets those preferences in the existing profile while preserving other settings. Closing the window hides it and leaves playback alive; the menu-bar icon restores the window and its Quit command exits the app.
+
+The Jenkins-owned local update targets `/Applications/YouTube Music.app`, preserves its bundle ID and product name, and uses its existing `YouTube Music` profile. The previous app and a quiescent profile backup must be kept privately before replacement. The controller must verify the requested installed revision, retained sign-in, automatic advancing playback, and playback after hiding the window. A failed check restores the previous app and profile. Local ad-hoc signing matches the existing signing family; this is not a notarized public release. Sign-in continuity remains unverified until that acceptance check actually succeeds.

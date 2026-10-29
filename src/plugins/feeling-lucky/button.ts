@@ -4,6 +4,7 @@ export function mountLuckyButton(
   container: HTMLElement,
   mix: { start(): Promise<boolean>; stop(): void },
   message: (key: string) => string,
+  onManualStart: () => void = () => {},
 ) {
   const group = document.createElement('div');
   group.id = 'feeling-lucky';
@@ -15,8 +16,8 @@ export function mountLuckyButton(
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   let stopped = false;
-  button.onclick = async () => {
-    if (button.disabled) return;
+  const start = async () => {
+    if (stopped || button.disabled) return;
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
     status.textContent = message('loading');
@@ -36,11 +37,18 @@ export function mountLuckyButton(
       }
     }
   };
+  button.onclick = () => {
+    onManualStart();
+    return start();
+  };
   group.append(button, status);
   container.prepend(group);
-  return () => {
-    stopped = true;
-    mix.stop();
-    group.remove();
+  return {
+    start,
+    stop() {
+      stopped = true;
+      mix.stop();
+      group.remove();
+    },
   };
 }

@@ -36,6 +36,19 @@ try {
     exact: true,
   });
   await button.waitFor({ state: 'visible', timeout: 45000 });
+  const windowLifecycle = await app.evaluate(({ BrowserWindow }) => {
+    const window = BrowserWindow.getAllWindows().find(
+      (w) => !w.webContents.getURL().startsWith('devtools:'),
+    );
+    window.close();
+    const result = {
+      destroyed: window.isDestroyed(),
+      visible: window.isVisible(),
+    };
+    window.show();
+    return result;
+  });
+  assert.deepEqual(windowLifecycle, { destroyed: false, visible: false });
   const signedIn = await page.evaluate(() => !!window.yt?.config_?.LOGGED_IN);
   if (!playback) {
     assert.equal(

@@ -31,8 +31,9 @@ function visit(
 const videoId = (value: unknown): value is string =>
   typeof value === 'string' && /^[\w-]{11}$/.test(value);
 
-// Limit seeds to playable music tiles in Home contents, excluding menus, ads,
-// tracking fields and podcast episodes. Deduplicate repeated tiles.
+// Read only the authenticated Songs library response, never the mixed Home
+// feed (which also contains charts, seasonal promotions and trending music).
+// Exclude menus, tracking fields and podcast episodes; deduplicate songs.
 export function recommendationSeeds(response: unknown): string[] {
   const seeds = new Set<string>();
   visit(record(response)?.contents, (node) => {
@@ -124,10 +125,12 @@ export function createLuckyMix(
       busy = true;
       try {
         if (!player.signedIn()) throw new LuckyError('signed-out');
-        const home = await request('/browse', { browseId: 'FEmusic_home' });
+        const library = await request('/browse', {
+          browseId: 'FEmusic_liked_videos',
+        });
         if (stopped) return false;
         const current = player.currentVideo();
-        const seeds = recommendationSeeds(home).filter(
+        const seeds = recommendationSeeds(library).filter(
           (id) => id !== current && id !== recent.at(-1),
         );
         const fresh = seeds.filter((id) => !recent.includes(id));

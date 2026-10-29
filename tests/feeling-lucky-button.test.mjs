@@ -73,7 +73,7 @@ test('visible native button has a live status, prevents double activation, and r
     document.querySelector('[aria-live=polite]').textContent,
     message('signed-out'),
   );
-  cleanup();
+  cleanup.stop();
   assert.equal(stops, 1);
   assert.equal(document.body.children.length, 0);
   await window.happyDOM.close();
@@ -104,10 +104,42 @@ test('successful start announces opening, and disabling removes the pending butt
     'Opening your mix…',
   );
   pending = button.onclick();
-  cleanup();
+  cleanup.stop();
   resolve(true);
   await pending;
   assert.equal(document.body.children.length, 0);
+  await window.happyDOM.close();
+  delete globalThis.document;
+});
+
+test('automatic start shares button state while manual press cancels startup', async () => {
+  const window = new Window();
+  globalThis.document = window.document;
+  let starts = 0;
+  let manual = 0;
+  const control = mountLuckyButton(
+    document.body,
+    {
+      start: async () => {
+        starts++;
+        return true;
+      },
+      stop() {},
+    },
+    message,
+    () => {
+      manual++;
+    },
+  );
+  await control.start();
+  assert.equal(starts, 1);
+  assert.equal(manual, 0);
+  await document.querySelector('button').onclick();
+  assert.equal(starts, 2);
+  assert.equal(manual, 1);
+  control.stop();
+  await control.start();
+  assert.equal(starts, 2);
   await window.happyDOM.close();
   delete globalThis.document;
 });
