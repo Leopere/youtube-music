@@ -22,6 +22,19 @@ type TrayEvent = (
   bounds: Electron.Rectangle,
 ) => void;
 
+export const syncDockVisibility = (app: Electron.App) => {
+  if (!is.macOS()) return;
+
+  if (
+    config.get('options.tray') &&
+    (config.get('options.menuBarOnly') || !config.get('options.appVisible'))
+  ) {
+    app.dock?.hide();
+  } else {
+    app.dock?.show();
+  }
+};
+
 export const setTrayOnClick = (fn: TrayEvent) => {
   if (!tray) {
     return;
@@ -42,6 +55,8 @@ export const setTrayOnDoubleClick = (fn: TrayEvent) => {
 };
 
 export const setUpTray = (app: Electron.App, win: Electron.BrowserWindow) => {
+  syncDockVisibility(app);
+
   if (!config.get('options.tray')) {
     tray = undefined;
     return;
@@ -82,11 +97,10 @@ export const setUpTray = (app: Electron.App, win: Electron.BrowserWindow) => {
       playPause();
     } else if (win.isVisible()) {
       win.hide();
-      app.dock?.hide();
     } else {
       win.show();
-      app.dock?.show();
     }
+    syncDockVisibility(app);
   });
 
   const template: MenuTemplate = [
@@ -112,7 +126,7 @@ export const setUpTray = (app: Electron.App, win: Electron.BrowserWindow) => {
       label: t('main.tray.show'),
       click() {
         win.show();
-        app.dock?.show();
+        syncDockVisibility(app);
       },
     },
     { type: 'separator' },

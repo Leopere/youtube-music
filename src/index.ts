@@ -48,7 +48,7 @@ import {
   setupProtocolHandler,
 } from '@/providers/protocol-handler';
 import { setupSongInfo } from '@/providers/song-info';
-import { setUpTray } from '@/tray';
+import { setUpTray, syncDockVisibility } from '@/tray';
 import { LoggerPrefix } from '@/utils';
 import { isTesting } from '@/utils/testing';
 
@@ -368,6 +368,7 @@ async function createMainWindow() {
     show: false,
     webPreferences: {
       contextIsolation: true,
+      autoplayPolicy: 'no-user-gesture-required',
       preload: path.join(__dirname, '..', 'preload', 'preload.cjs'),
       ...(isTesting()
         ? undefined
@@ -495,6 +496,7 @@ async function createMainWindow() {
     if (config.get('options.appVisible')) {
       win.show();
     }
+    syncDockVisibility(app);
   });
 
   removeContentSecurityPolicy();
@@ -876,9 +878,7 @@ app.whenReady().then(async () => {
   }
 
   // Optimized for Mac OS X
-  if (is.macOS() && !config.get('options.appVisible')) {
-    app.dock?.hide();
-  }
+  syncDockVisibility(app);
 
   let forceQuit = false;
   app.on('before-quit', () => {
@@ -891,7 +891,7 @@ app.whenReady().then(async () => {
       if (!forceQuit) {
         event.preventDefault();
         mainWindow!.hide();
-        if (config.get('options.tray')) app.dock?.hide();
+        syncDockVisibility(app);
       }
     });
   }

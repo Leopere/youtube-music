@@ -44,6 +44,7 @@ export function mountLuckyButton(
   group.append(button, status);
   container.prepend(group);
   return {
+    element: group,
     start,
     stop() {
       stopped = true;

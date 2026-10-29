@@ -1,5 +1,10 @@
 // Use the signed-in site's network manager: no copied credentials or second session.
-export type LuckyErrorCode = 'signed-out' | 'unavailable' | 'empty' | 'network';
+export type LuckyErrorCode =
+  | 'signed-out'
+  | 'unavailable'
+  | 'empty'
+  | 'network'
+  | 'playback';
 
 export class LuckyError extends Error {
   readonly code: LuckyErrorCode;
@@ -85,7 +90,7 @@ export interface MixPlayer {
   signedIn(): boolean;
   currentVideo(): string | undefined;
   request(path: string, data: Record<string, unknown>): Promise<unknown>;
-  navigate(path: string): void;
+  navigate(path: string): void | Promise<void>;
 }
 
 // The only queue-changing operation is native watch navigation after a valid
@@ -142,7 +147,7 @@ export function createLuckyMix(
         if (!radioTracks(radio).includes(seed)) throw new LuckyError('empty');
         if (stopped) return false;
         if (!player.signedIn()) throw new LuckyError('signed-out');
-        player.navigate(
+        await player.navigate(
           `/watch?${new URLSearchParams({ v: seed, list: playlistId })}`,
         );
         recent.push(seed);

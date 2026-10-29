@@ -3,8 +3,10 @@ import { createPlugin } from '@/utils';
 
 import { mountLuckyButton } from './button';
 import { createLuckyMix, LuckyError } from './mix';
+import { startSelectedSong } from './playback';
 import { scheduleLaunchMix } from './startup';
 import style from './style.css?inline';
+import { createListeningView } from './view';
 
 import type { MusicPlayer } from '@/types/music-player';
 import type { MusicPlayerAppElement } from '@/types/music-player-app-element';
@@ -16,13 +18,19 @@ export default createPlugin({
   name: () => t('plugins.feeling-lucky.name'),
   description: () => t('plugins.feeling-lucky.description'),
   restartNeeded: false,
-  config: { enabled: true, playOnLaunch: true },
+  config: { enabled: true, playOnLaunch: true, focusHome: true },
   menu: async ({ getConfig, setConfig }) => [
     {
       label: t('plugins.feeling-lucky.play-on-launch'),
       type: 'checkbox',
       checked: (await getConfig()).playOnLaunch,
       click: (item) => setConfig({ playOnLaunch: item.checked }),
+    },
+    {
+      label: t('plugins.feeling-lucky.focus-home'),
+      type: 'checkbox',
+      checked: (await getConfig()).focusHome,
+      click: (item) => setConfig({ focusHome: item.checked }),
     },
   ],
   stylesheets: [style],
@@ -31,12 +39,15 @@ export default createPlugin({
     observer: undefined as MutationObserver | undefined,
     cancelStartup: undefined as (() => void) | undefined,
     playOnLaunch: true,
+    focusHome: true,
+    updateView: undefined as (() => void) | undefined,
     generation: 0,
     async start({ getConfig }) {
       const generation = ++this.generation;
       const config = await getConfig();
       if (generation !== this.generation) return;
       this.playOnLaunch = config.playOnLaunch;
+      this.focusHome = config.focusHome;
       const attemptLaunch = !launchAttempted;
       launchAttempted = true;
       const attach = () => {
@@ -46,6 +57,7 @@ export default createPlugin({
         if (!container || this.cleanup) return;
         const app = () =>
           document.querySelector<MusicPlayerAppElement>('ytmusic-app');
+        let stopped = false;
         const mix = createLuckyMix({
           signedIn: () =>
             !!(
@@ -64,10 +76,22 @@ export default createPlugin({
             if (!site?.networkManager) throw new LuckyError('unavailable');
             return site.networkManager.fetch(path, data);
           },
-          navigate: (path) => {
+          navigate: async (path) => {
             const site = app();
             if (!site?.navigate) throw new LuckyError('unavailable');
             site.navigate(path);
+            const expected = new URL(path, location.origin).searchParams.get(
+              'v',
+            )!;
+            const started = await startSelectedSong(
+              () =>
+                document.querySelector<HTMLElement & MusicPlayer>(
+                  '#movie_player',
+                ),
+              expected,
+              () => stopped,
+            );
+            if (!started && !stopped) throw new LuckyError('playback');
           },
         });
         const control = mountLuckyButton(
@@ -76,7 +100,27 @@ export default createPlugin({
           (key) => t(`plugins.feeling-lucky.${key}`),
           () => this.cancelStartup?.(),
         );
-        this.cleanup = () => control.stop();
+        const view = createListeningView(container, control.element, (key) =>
+          t(`plugins.feeling-lucky.${key}`),
+        );
+        this.updateView = () => view.update(this.focusHome, location.pathname);
+        const viewObserver = new MutationObserver(this.updateView);
+        viewObserver.observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+        document.addEventListener('yt-navigate-finish', this.updateView);
+        window.addEventListener('popstate', this.updateView);
+        this.updateView();
+        this.cleanup = () => {
+          stopped = true;
+          viewObserver.disconnect();
+          document.removeEventListener('yt-navigate-finish', this.updateView!);
+          window.removeEventListener('popstate', this.updateView!);
+          view.stop();
+          control.stop();
+          this.updateView = undefined;
+        };
         if (attemptLaunch && this.playOnLaunch) {
           this.cancelStartup = scheduleLaunchMix(
             () => {
@@ -118,6 +162,8 @@ export default createPlugin({
     },
     onConfigChange(config) {
       this.playOnLaunch = config.playOnLaunch;
+      this.focusHome = config.focusHome;
+      this.updateView?.();
       if (!config.playOnLaunch) this.cancelStartup?.();
     },
     stop() {

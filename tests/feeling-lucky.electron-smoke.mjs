@@ -10,7 +10,7 @@ const playback = process.argv.includes('--playback');
 const app = await electron.launch({
   cwd: root,
   args: [root, '--no-sandbox', '--disable-gpu'],
-  env: { ...process.env, NODE_ENV: 'development' },
+  env: { ...process.env, NODE_ENV: 'production' },
   timeout: 30000,
 });
 try {
@@ -36,6 +36,14 @@ try {
     exact: true,
   });
   await button.waitFor({ state: 'visible', timeout: 45000 });
+  await expect(page.locator('#feeling-lucky-home')).toBeVisible();
+  await expect(page.locator('#feeling-lucky-home h1')).toHaveText(
+    'Your music. One press.',
+  );
+  await expect
+    .poll(() => app.evaluate(({ app }) => app.dock?.isVisible() ?? false))
+    .toBe(false);
+
   const windowLifecycle = await app.evaluate(({ BrowserWindow }) => {
     const window = BrowserWindow.getAllWindows().find(
       (w) => !w.webContents.getURL().startsWith('devtools:'),

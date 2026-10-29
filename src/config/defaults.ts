@@ -16,6 +16,7 @@ export interface DefaultConfig {
   'options': {
     language?: string;
     tray: boolean;
+    menuBarOnly: boolean;
     appVisible: boolean;
     autoUpdates: boolean;
     alwaysOnTop: boolean;
@@ -53,6 +54,7 @@ export const defaultConfig: DefaultConfig = {
   'url': 'https://music.\u0079\u006f\u0075\u0074\u0075\u0062\u0065.com',
   'options': {
     tray: true,
+    menuBarOnly: true,
     appVisible: true,
     autoUpdates: false,
     alwaysOnTop: false,

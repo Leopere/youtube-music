@@ -217,6 +217,10 @@
   "plugins": {
     "feeling-lucky": {
       "play-on-launch": "Play a fresh mix when the app opens",
+      "playback": "Your mix is queued. Press Play if playback hasn’t started.",
+      "focus-home": "Show a focused listening Home",
+      "home-title": "Your music. One press.",
+      "home-description": "Start a fresh radio mix from your saved songs, or use search and Library to choose what plays.",
       "name": "I’m Feeling Lucky",
       "description": "Start a fresh radio mix from songs in your library.",
       "button": "I’m Feeling Lucky",

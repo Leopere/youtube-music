@@ -31,7 +31,7 @@ The upstream Actions workflow files remain for reference, but GitHub Actions is 
 
 Use Node 24.15.0 or a newer compatible Node release and pnpm 11.1.0. The default Node 24.2.0 fails the locked `node-gyp` engine requirement. `packageManager` pins pnpm to avoid the broken default shim observed on this Mac.
 
-- `pnpm test:lucky`: 13 selection/network/lifecycle tests, 3 button tests, and 4 startup scheduler tests pass. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
+- `pnpm test:lucky`: 27 focused tests pass, including library selection, button behavior, startup, explicit player start, and the focused listening view. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
 - `pnpm typecheck`: passes.
 - `pnpm lint`: no errors; existing warnings remain in other plugins.
 - `pnpm build`: passes. This is a local development build, not a release artifact.
@@ -56,3 +56,10 @@ The owner authorized switching the installed app to this fork on 2026-10-29, reu
 New profiles enable the tray/menu-bar icon and disable restoring an old queue and upstream automatic updates. The authorized local migration sets those preferences in the existing profile while preserving other settings. Closing the window hides it and leaves playback alive; the menu-bar icon restores the window and its Quit command exits the app.
 
 The Jenkins-owned local update targets `/Applications/YouTube Music.app`, preserves its bundle ID and product name, and uses its existing `YouTube Music` profile. The previous app and a quiescent profile backup must be kept privately before replacement. The controller must verify the requested installed revision, retained sign-in, automatic advancing playback, and playback after hiding the window. A failed check restores the previous app and profile. Local ad-hoc signing matches the existing signing family; this is not a notarized public release. Sign-in continuity remains unverified until that acceptance check actually succeeds.
+
+
+## Focused listening follow-up
+
+The owner also requested a menu-bar app without a Dock icon and a Home view without generic promotional carousels. `menuBarOnly` now defaults to true when the tray is enabled. Disabling the tray restores Dock access. Home and the watch route show a focused listening panel with a large Lucky button; Search and Library retain the native interface. The `focusHome` plugin option restores native Home content when disabled.
+
+Jenkins build 1 completed checks and packaging but failed a premature signature check before activation. The controller now signs before verifying and reuses the validated package for the same frozen source. Builds 2 and 3 retained the real sign-in and generated a populated library radio queue, but the embedded player stayed unstarted; both attempts restored the old app/profile. The feature now explicitly calls the player API for the selected song after navigation, with cancellation and a bounded wait. This corrected source still requires a new pushed-revision Jenkins acceptance run.
