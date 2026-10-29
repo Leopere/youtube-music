@@ -31,7 +31,7 @@ The upstream Actions workflow files remain for reference, but GitHub Actions is 
 
 Use Node 24.15.0 or a newer compatible Node release and pnpm 11.1.0. The default Node 24.2.0 fails the locked `node-gyp` engine requirement. `packageManager` pins pnpm to avoid the broken default shim observed on this Mac.
 
-- `pnpm test:lucky`: 27 focused tests pass, including library selection, button behavior, startup, explicit player start, and the focused listening view. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
+- `pnpm test:lucky`: 28 focused tests pass, including library selection, button behavior, startup, explicit player start, and the focused listening view. Button tests use the real English resource and i18next. Protocol fixtures are synthetic.
 - `pnpm typecheck`: passes.
 - `pnpm lint`: no errors; existing warnings remain in other plugins.
 - `pnpm build`: passes. This is a local development build, not a release artifact.
@@ -63,3 +63,8 @@ The Jenkins-owned local update targets `/Applications/YouTube Music.app`, preser
 The owner also requested a menu-bar app without a Dock icon and a Home view without generic promotional carousels. `menuBarOnly` now defaults to true when the tray is enabled. Disabling the tray restores Dock access. Home and the watch route show a focused listening panel with a large Lucky button; Search and Library retain the native interface. The `focusHome` plugin option restores native Home content when disabled.
 
 Jenkins build 1 completed checks and packaging but failed a premature signature check before activation. The controller now signs before verifying and reuses the validated package for the same frozen source. Builds 2 and 3 retained the real sign-in and generated a populated library radio queue, but the embedded player stayed unstarted; both attempts restored the old app/profile. The feature now explicitly calls the player API for the selected song after navigation, with cancellation and a bounded wait. This corrected source still requires a new pushed-revision Jenkins acceptance run.
+
+
+The fourth Jenkins attempt verified Dock suppression and retained sign-in but exposed the exact playback bug: `ytmusic-app.navigate()` accepts a browse ID and wraps its argument in a browse endpoint. It does not accept a watch URL. Lucky now uses the site's `handleNavigationEndpoint({watchEndpoint: ...})` entry point, verified to load the requested track in a muted, signed-out development instance. Live signed-in playback still needs the subsequent pushed revision's Jenkins acceptance.
+
+A subsequent muted, signed-out runtime probe confirmed the corrected native watch endpoint plus explicit player start reaches playing state with a populated queue. Its teardown hit the known Playwright/dialog race; this does not count as a clean full probe exit. The product source build, typecheck, and 28 focused tests pass. The Dock suppression assertion previously passed on the installed candidate. The next native push must run the corrected source through full signed-in Jenkins acceptance before claiming permanent installation.

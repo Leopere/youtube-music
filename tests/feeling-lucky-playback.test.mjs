@@ -54,3 +54,21 @@ test('plugin shutdown prevents pending playback', async () => {
   );
   assert.equal(starts, 0);
 });
+
+test('does not restart a new song that the native endpoint already started', async () => {
+  let starts = 0;
+  const player = {
+    getVideoData: () => ({ video_id: 'new-song' }),
+    getPlayerState: () => 1,
+    playVideo: () => starts++,
+  };
+  assert.equal(
+    await startSelectedSong(
+      () => player,
+      'new-song',
+      () => false,
+    ),
+    true,
+  );
+  assert.equal(starts, 0);
+});

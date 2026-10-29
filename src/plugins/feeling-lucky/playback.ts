@@ -4,6 +4,7 @@ export async function startSelectedSong(
   player: () => {
     getVideoData(): { video_id: string };
     playVideo(): void;
+    getPlayerState?(): number;
   } | null,
   expected: string,
   cancelled: () => boolean,
@@ -13,7 +14,7 @@ export async function startSelectedSong(
   while (!cancelled()) {
     const current = player();
     if (current?.getVideoData().video_id === expected) {
-      current.playVideo();
+      if (current.getPlayerState?.() !== 1) current.playVideo();
       return true;
     }
     if (Date.now() >= deadline) return false;

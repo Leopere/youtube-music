@@ -78,8 +78,15 @@ export default createPlugin({
           },
           navigate: async (path) => {
             const site = app();
-            if (!site?.navigate) throw new LuckyError('unavailable');
-            site.navigate(path);
+            if (!site?.handleNavigationEndpoint)
+              throw new LuckyError('unavailable');
+            const url = new URL(path, location.origin);
+            site.handleNavigationEndpoint({
+              watchEndpoint: {
+                videoId: url.searchParams.get('v')!,
+                playlistId: url.searchParams.get('list')!,
+              },
+            });
             const expected = new URL(path, location.origin).searchParams.get(
               'v',
             )!;
