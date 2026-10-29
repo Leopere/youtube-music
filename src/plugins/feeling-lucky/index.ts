@@ -2,6 +2,7 @@ import { t } from '@/i18n';
 import { createPlugin } from '@/utils';
 
 import { mountLuckyButton } from './button';
+import { readDashboardState } from './dashboard-data';
 import { createLuckyMix, LuckyError } from './mix';
 import { startSelectedSong } from './playback';
 import { scheduleLaunchMix } from './startup';
@@ -10,6 +11,7 @@ import { createListeningView } from './view';
 
 import type { MusicPlayer } from '@/types/music-player';
 import type { MusicPlayerAppElement } from '@/types/music-player-app-element';
+import type { QueueElement } from '@/types/queue';
 
 // Once per renderer lifetime, including disable/re-enable of the plugin.
 let launchAttempted = false;
@@ -99,6 +101,14 @@ export default createPlugin({
               () => stopped,
             );
             if (!started && !stopped) throw new LuckyError('playback');
+            if (started && !stopped && this.focusHome) {
+              document
+                .querySelector<QueueElement>('#queue')
+                ?.queue.store.store.dispatch({
+                  type: 'SET_PLAYER_PAGE_INFO',
+                  payload: { open: false },
+                });
+            }
           },
         });
         const control = mountLuckyButton(
@@ -107,10 +117,62 @@ export default createPlugin({
           (key) => t(`plugins.feeling-lucky.${key}`),
           () => this.cancelStartup?.(),
         );
-        const view = createListeningView(container, control.element, (key) =>
-          t(`plugins.feeling-lucky.${key}`),
+        const view = createListeningView(
+          container,
+          control.element,
+          (key) => t(`plugins.feeling-lucky.${key}`),
+          {
+            previous: () =>
+              document
+                .querySelector<HTMLElement>(
+                  'ytmusic-player-bar .previous-button',
+                )
+                ?.click(),
+            next: () =>
+              document
+                .querySelector<HTMLElement>('ytmusic-player-bar .next-button')
+                ?.click(),
+            playPause: () => {
+              const player = document.querySelector<HTMLElement & MusicPlayer>(
+                '#movie_player',
+              );
+              if ([1, 3].includes(player?.getPlayerState?.() ?? -1))
+                player?.pauseVideo();
+              else player?.playVideo();
+            },
+            openLibrary: () => app()?.navigate('FEmusic_liked_videos'),
+            openSearch: () => {
+              const box =
+                document.querySelector<HTMLElement>('ytmusic-search-box');
+              box?.click();
+              box?.querySelector<HTMLInputElement>('input')?.focus();
+            },
+            playQueueItem: (index) =>
+              document
+                .querySelector<QueueElement>('#queue')
+                ?.dispatch({ type: 'SET_INDEX', payload: index }),
+          },
         );
-        this.updateView = () => view.update(this.focusHome, location.pathname);
+        const refreshPlayback = () => {
+          if (!document.querySelector('#feeling-lucky-home')) return;
+          view.setPlayback(
+            readDashboardState(document) ?? {
+              title: '',
+              artist: '',
+              elapsed: 0,
+              duration: 0,
+              playing: false,
+              queue: [],
+            },
+          );
+        };
+        const playbackTimer = setInterval(refreshPlayback, 1000);
+        document.addEventListener('videodatachange', refreshPlayback);
+        document.addEventListener('play', refreshPlayback, true);
+        document.addEventListener('pause', refreshPlayback, true);
+        this.updateView = () => {
+          view.update(this.focusHome, location.pathname);
+        };
         const viewObserver = new MutationObserver(this.updateView);
         viewObserver.observe(document.documentElement, {
           childList: true,
@@ -119,8 +181,13 @@ export default createPlugin({
         document.addEventListener('yt-navigate-finish', this.updateView);
         window.addEventListener('popstate', this.updateView);
         this.updateView();
+        refreshPlayback();
         this.cleanup = () => {
           stopped = true;
+          clearInterval(playbackTimer);
+          document.removeEventListener('videodatachange', refreshPlayback);
+          document.removeEventListener('play', refreshPlayback, true);
+          document.removeEventListener('pause', refreshPlayback, true);
           viewObserver.disconnect();
           document.removeEventListener('yt-navigate-finish', this.updateView!);
           window.removeEventListener('popstate', this.updateView!);

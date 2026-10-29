@@ -101,7 +101,7 @@ test('successful start announces opening, and disabling removes the pending butt
   await pending;
   assert.equal(
     document.querySelector('[role=status]').textContent,
-    'Opening your mix…',
+    'Your mix is ready.',
   );
   pending = button.onclick();
   cleanup.stop();

@@ -1,4 +1,4 @@
-ytmusic-browse-response[data-lucky-suppressed] {
+ytmusic-browse-response > [data-lucky-suppressed] {
   display: none !important;
 }
 #feeling-lucky {
@@ -9,9 +9,9 @@ ytmusic-browse-response[data-lucky-suppressed] {
   font-size: 14px;
 }
 #feeling-lucky button {
-  color: #101010;
-  background: #f4f1e8;
-  border: 1px solid #f4f1e8;
+  color: #191713;
+  background: #e8d5ae;
+  border: 1px solid #e8d5ae;
   border-radius: 24px;
   padding: 12px 20px;
   font: inherit;
@@ -20,11 +20,7 @@ ytmusic-browse-response[data-lucky-suppressed] {
   white-space: nowrap;
 }
 #feeling-lucky button:hover {
-  background: white;
-}
-#feeling-lucky button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 4px;
+  background: #f8e5bd;
 }
 #feeling-lucky button:disabled {
   opacity: 0.6;
@@ -32,49 +28,317 @@ ytmusic-browse-response[data-lucky-suppressed] {
 }
 #feeling-lucky [role='status'] {
   max-width: 240px;
+  color: #c4bcb0;
 }
 #feeling-lucky-home {
   box-sizing: border-box;
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: clamp(24px, 7vw, 100px);
-  color: var(--ytmusic-text-primary, white);
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: clamp(24px, 4vw, 64px);
+  color: var(--ytmusic-text-primary, #f4f0e8);
+}
+#feeling-lucky-home * {
+  box-sizing: border-box;
+}
+#feeling-lucky-home button {
+  font: inherit;
+}
+#feeling-lucky-home button:not(:disabled) {
+  cursor: pointer;
+}
+#feeling-lucky-home button:focus-visible,
+#feeling-lucky button:focus-visible {
+  outline: 2px solid #e8d5ae;
+  outline-offset: 4px;
+}
+#feeling-lucky-home .lucky-eyebrow {
+  display: block;
+  margin: 0 0 16px;
+  color: #c8b58e;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 #feeling-lucky-home h1 {
-  margin: 0 0 16px;
-  font-size: clamp(32px, 5vw, 56px);
-  font-weight: 700;
-  line-height: 1.1;
+  margin: 0;
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
-#feeling-lucky-home p {
-  margin: 0 0 32px;
-  max-width: 38em;
-  font-size: 18px;
-  line-height: 1.5;
-  color: var(--ytmusic-text-secondary, #aaa);
+#feeling-lucky-home .lucky-intro {
+  margin: 14px 0 20px;
+  max-width: 48em;
+  color: #a8a39a;
+  font-size: 15px;
+  line-height: 1.6;
+}
+#feeling-lucky-home .lucky-launch {
+  margin-bottom: 30px;
 }
 #feeling-lucky-home #feeling-lucky {
   margin: 0;
   flex-wrap: wrap;
-  font-size: 18px;
-}
-#feeling-lucky-home #feeling-lucky button {
-  padding: 16px 28px;
-  border-radius: 30px;
 }
 #feeling-lucky-home #feeling-lucky [role='status'] {
   max-width: 32em;
+  font-size: 13px;
+}
+#feeling-lucky-home .lucky-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr);
+  gap: 20px;
+}
+#feeling-lucky-home .lucky-now,
+#feeling-lucky-home .lucky-upcoming {
+  min-width: 0;
+  padding: 26px;
+  border: 1px solid #ffffff14;
+  border-radius: 20px;
+  background: #171614;
+}
+#feeling-lucky-home .lucky-now {
+  background:
+    radial-gradient(ellipse at 0 0, #51432c44, transparent 70%), #171614;
+}
+#feeling-lucky-home .lucky-record {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  min-height: 170px;
+}
+#feeling-lucky-home .lucky-artwork {
+  position: relative;
+  flex: 0 0 170px;
+  width: 170px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: repeating-radial-gradient(
+    circle at center,
+    #27241e 0 3px,
+    #343024 4px 5px
+  );
+  box-shadow: 0 12px 28px #0005;
+}
+#feeling-lucky-home .lucky-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#feeling-lucky-home .lucky-artwork-placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: 54px;
+  color: #bca578;
+}
+#feeling-lucky-home [hidden] {
+  display: none !important;
+}
+#feeling-lucky-home .lucky-track {
+  min-width: 0;
+}
+#feeling-lucky-home .lucky-track-title {
+  margin: 0 0 10px;
+  font-size: clamp(21px, 2.2vw, 32px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+#feeling-lucky-home .lucky-track-artist {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #d0c8ba;
+  overflow-wrap: anywhere;
+}
+#feeling-lucky-home .lucky-track-album {
+  margin: 7px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #948b7d;
+}
+#feeling-lucky-home .lucky-transports {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin: 26px 0 22px;
+}
+#feeling-lucky-home .lucky-transport {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: #ede8df;
+  border: 0;
+  background: transparent;
+  border-radius: 50%;
+  font-size: 32px;
+}
+#feeling-lucky-home .lucky-transport:disabled {
+  opacity: 0.35;
+}
+#feeling-lucky-home .lucky-play-pause {
+  width: 52px;
+  height: 52px;
+  background: #e8d5ae;
+  color: #191713;
+  font-size: 21px;
+}
+#feeling-lucky-home .lucky-progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 2px;
+  overflow: hidden;
+  accent-color: #ddc79c;
+  background: #ffffff1a;
+}
+#feeling-lucky-home .lucky-progress::-webkit-progress-bar {
+  background: #ffffff1a;
+}
+#feeling-lucky-home .lucky-progress::-webkit-progress-value {
+  background: #ddc79c;
+}
+#feeling-lucky-home .lucky-timing {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: #9b9388;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+#feeling-lucky-home .lucky-queue {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+#feeling-lucky-home .lucky-queue-song {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px 6px;
+  width: 100%;
+  min-width: 0;
+  text-align: start;
+  color: inherit;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+}
+#feeling-lucky-home .lucky-queue-song:hover:not(:disabled) {
+  background: #ffffff08;
+}
+#feeling-lucky-home .lucky-queue-cover {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 7px;
+}
+#feeling-lucky-home .lucky-queue-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+#feeling-lucky-home .lucky-queue-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
+  font-weight: 550;
+}
+#feeling-lucky-home .lucky-queue-copy > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #989187;
+  font-size: 12px;
+}
+#feeling-lucky-home .lucky-queue-empty {
+  max-width: 22em;
+  margin: 30px 0;
+  color: #a8a39a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+#feeling-lucky-home .lucky-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+#feeling-lucky-home .lucky-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  min-width: 0;
+  text-align: start;
+  color: inherit;
+  border: 1px solid #ffffff14;
+  border-radius: 16px;
+  background: #10100f;
+}
+#feeling-lucky-home .lucky-shortcut:hover:not(:disabled) {
+  background: #1c1a16;
+  border-color: #a58c5655;
+}
+#feeling-lucky-home .lucky-shortcut-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid #a58c5633;
+  border-radius: 12px;
+  color: #d4bd8f;
+  font-size: 26px;
+}
+#feeling-lucky-home .lucky-shortcut-copy {
+  display: grid;
+  gap: 6px;
+}
+#feeling-lucky-home .lucky-shortcut-copy strong {
+  font-size: 15px;
+  font-weight: 550;
+}
+#feeling-lucky-home .lucky-shortcut-copy > span {
+  color: #989187;
+  font-size: 12px;
+  line-height: 1.45;
+}
+#feeling-lucky-home .lucky-shortcut-arrow {
+  margin-inline-start: auto;
+  color: #c0ad88;
+  font-size: 24px;
+}
+@media (max-width: 1050px) {
+  #feeling-lucky-home .lucky-record {
+    gap: 18px;
+  }
+  #feeling-lucky-home .lucky-artwork {
+    flex-basis: 130px;
+    width: 130px;
+  }
+  #feeling-lucky-home .lucky-now,
+  #feeling-lucky-home .lucky-upcoming {
+    padding: 22px;
+  }
 }
 @media (max-width: 800px) {
   #feeling-lucky [role='status']:not(:empty) {
     position: fixed;
     top: 68px;
     inset-inline-end: 12px;
-    background: var(--ytmusic-menu-background, #282828);
+    background: #171614;
     padding: 12px;
     border-radius: 8px;
   }
@@ -82,5 +346,31 @@ ytmusic-browse-response[data-lucky-suppressed] {
     position: static;
     padding: 0;
     background: transparent;
+  }
+  #feeling-lucky-home .lucky-grid {
+    grid-template-columns: 1fr;
+  }
+  #feeling-lucky-home .lucky-shortcuts {
+    gap: 12px;
+  }
+  #feeling-lucky-home .lucky-shortcut {
+    padding: 16px;
+  }
+  #feeling-lucky-home .lucky-shortcut-copy > span {
+    display: none;
+  }
+}
+@media (max-width: 460px) {
+  #feeling-lucky-home .lucky-record {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  #feeling-lucky-home .lucky-artwork {
+    flex-basis: auto;
+    width: 100%;
+    max-width: 220px;
+  }
+  #feeling-lucky-home .lucky-shortcuts {
+    grid-template-columns: 1fr;
   }
 }
