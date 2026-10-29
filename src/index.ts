@@ -399,14 +399,16 @@ async function createMainWindow() {
     const scaledWidth = Math.floor(windowSize.width * scaleFactor);
     const scaledHeight = Math.floor(windowSize.height * scaleFactor);
 
+    const halfWidth = scaledWidth / 2;
+    const halfHeight = scaledHeight / 2;
     const scaledX = windowX;
     const scaledY = windowY;
 
     if (
-      scaledX + (scaledWidth / 2) < display.bounds.x - 8 || // Left
-      scaledX + (scaledWidth / 2) > display.bounds.x + display.bounds.width || // Right
+      scaledX + halfWidth < display.bounds.x - 8 || // Left
+      scaledX + halfWidth > display.bounds.x + display.bounds.width || // Right
       scaledY < display.bounds.y - 8 || // Top
-      scaledY + (scaledHeight / 2) > display.bounds.y + display.bounds.height // Bottom
+      scaledY + halfHeight > display.bounds.y + display.bounds.height // Bottom
     ) {
       // Window is offscreen
       if (is.dev()) {
@@ -806,10 +808,12 @@ app.whenReady().then(async () => {
     mainWindow.focus();
   });
 
-  // Autostart at login
-  app.setLoginItemSettings({
-    openAtLogin: config.get('options.startAtLogin'),
-  });
+  // Development must not change the installed app's login-item settings.
+  if (app.isPackaged) {
+    app.setLoginItemSettings({
+      openAtLogin: config.get('options.startAtLogin'),
+    });
+  }
 
   if (!is.dev() && config.get('options.autoUpdates')) {
     const updateTimeout = setTimeout(() => {

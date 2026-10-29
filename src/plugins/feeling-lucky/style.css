@@ -1,0 +1,38 @@
+#feeling-lucky {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline: 8px;
+  font-size: 12px;
+}
+#feeling-lucky button {
+  color: var(--ytmusic-text-primary, white);
+  background: var(--ytmusic-menu-background, #282828);
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#feeling-lucky button:focus-visible {
+  outline: 2px solid var(--ytmusic-text-primary, white);
+  outline-offset: 3px;
+}
+#feeling-lucky button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+#feeling-lucky [role='status'] {
+  max-width: 220px;
+}
+@media (max-width: 800px) {
+  #feeling-lucky [role='status']:not(:empty) {
+    position: fixed;
+    top: 68px;
+    inset-inline-end: 12px;
+    background: var(--ytmusic-menu-background, #282828);
+    padding: 12px;
+    border-radius: 8px;
+  }
+}

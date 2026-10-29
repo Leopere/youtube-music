@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 import { app, type BrowserWindow } from 'electron';
 
 import { getSongControls } from './song-controls';
@@ -10,11 +8,8 @@ export const APP_PROTOCOL =
 let protocolHandler: ((cmd: string, ...args: string[]) => void) | undefined;
 
 export function setupProtocolHandler(win: BrowserWindow) {
-  if (process.defaultApp && process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient(APP_PROTOCOL, process.execPath, [
-      path.resolve(process.argv[1]),
-    ]);
-  } else {
+  // Development must not take over the installed app's protocol registration.
+  if (app.isPackaged) {
     app.setAsDefaultProtocolClient(APP_PROTOCOL);
   }
 

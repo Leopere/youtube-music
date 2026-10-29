@@ -215,6 +215,17 @@
     }
   },
   "plugins": {
+    "feeling-lucky": {
+      "name": "I’m Feeling Lucky",
+      "description": "Start a fresh mix from your YouTube Music recommendations.",
+      "button": "I’m Feeling Lucky",
+      "loading": "Finding your mix…",
+      "started": "Opening your mix…",
+      "signed-out": "Sign in to YouTube Music to use your recommendations.",
+      "unavailable": "The player isn’t ready. Try again in a moment.",
+      "empty": "No fresh recommendations are available. Try again after listening to more music.",
+      "network": "Couldn’t start a mix. Check your connection and try again. Your queue hasn’t been cleared."
+    },
     "ad-speedup": {
       "description": "If an ad play it mutes the audio and sets playback speed to 16x",
       "name": "Ad Speedup"

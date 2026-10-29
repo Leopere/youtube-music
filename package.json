@@ -14,7 +14,11 @@
     "email": "th-ch@users.noreply.github.com",
     "url": "https://github.com/pear-devs/pear-desktop"
   },
+  "packageManager": "pnpm@11.1.0",
   "scripts": {
+    "test:lucky:electron": "node tests/feeling-lucky.electron-smoke.mjs",
+    "test:lucky:playback": "node tests/feeling-lucky.electron-smoke.mjs --playback",
+    "test:lucky": "node --experimental-strip-types --test tests/feeling-lucky*.test.mjs",
     "postinstall": "pnpm install-electron",
     "test": "pnpm playwright test",
     "test:debug": "pnpm cross-env DEBUG=pw:*,-pw:test:protocol playwright test",
