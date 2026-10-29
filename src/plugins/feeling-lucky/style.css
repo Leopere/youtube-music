@@ -36,6 +36,10 @@ ytmusic-browse-response > [data-lucky-suppressed] {
   max-width: 1400px;
   margin-inline: auto;
   padding: clamp(24px, 4vw, 64px);
+  /* The native header is fixed; its full height includes macOS traffic lights. */
+  padding-block-start: calc(
+    var(--ytmusic-nav-bar-height, 90px) + clamp(24px, 4vw, 64px)
+  );
   color: var(--ytmusic-text-primary, #f4f0e8);
 }
 #feeling-lucky-home * {
